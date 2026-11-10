@@ -18,3 +18,6 @@ main{flex:1;padding-bottom:64px}
 .skip:focus{top:12px}
 main:focus{outline:none}
 @media (min-width:641px){:root{--gutter:28px}}
+
+html{-webkit-tap-highlight-color:transparent}
+body{overscroll-behavior-y:none}

@@ -8,7 +8,7 @@
     document.getElementById('nav').innerHTML = ROUTES.map(([h, l]) => `<a href="${h}" ${cur === h ? 'aria-current="page"' : ''}>${l}</a>`).join('');
     const c = E.config.get();
     document.getElementById('user').innerHTML = c.user
-      ? `<a class="user-chip" href="#/ajustes" aria-label="Ajustes de ${E.esc(c.user)}"><span class="avatar" style="width:26px;height:26px;display:grid;place-items:center;background:var(--accent);color:#14102e;font-weight:800;font-size:13px">${E.esc(c.user[0].toUpperCase())}</span>${E.esc(c.user)}</a>`
+      ? `<a class="user-chip" href="#/ajustes" aria-label="Ajustes de ${E.esc(c.user)}"><span class="avatar" style="width:26px;height:26px;display:grid;place-items:center;background:var(--accent-btn);color:var(--on-accent);font-weight:800;font-size:13px">${E.esc(c.user[0].toUpperCase())}</span>${E.esc(c.user)}</a>`
       : `<a class="btn btn-primary" href="#/ajustes">Conectar</a>`;
   };
 
@@ -31,5 +31,10 @@
     document.title = (r ? r[1] + ' · ' : '') + 'Ecos';
   };
   window.addEventListener('hashchange', E.route);
+  document.getElementById('theme').onclick = () => {
+    const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    try { localStorage.setItem('ecos:theme', dark ? 'dark' : 'light'); } catch {}
+    document.querySelector('meta[name=theme-color]').content = dark ? '#0f1319' : '#f4f8fc'; E.route(); // redibuja los gráficos con los colores nuevos
+  };
   E.route();
 })(window.Ecos);

@@ -1,13 +1,31 @@
+/* Tema claro por defecto: cielo y azul suave. El oscuro se activa con [data-theme=dark]. */
 :root{
-  --bg:#111112; --surface:#18181c; --surface-2:#222227; --surface-3:#2c2c33;
-  --border:rgba(255,255,255,.07);
-  --text:#fff; --muted:#a3a3a3; --faint:#8e8e9a;
-  --accent:#8b7cff; --accent-soft:rgba(139,124,255,.14); --accent-ink:#b9b0ff;
-  --ok:#4fd38a; --danger:#ff6b81;
+  --bg:#f4f8fc; --surface:#ffffff; --surface-2:#e9f0f8; --surface-3:#d6e2ef;
+  --border:rgba(40,70,110,.10); --line:rgba(40,70,110,.13);
+  --text:#1f2a37; --muted:#5a6878; --faint:#637184;
+  --accent:#4a8fe7; --accent-btn:#2e6fd0; --accent-h:#2459b0; --accent-2:#bbd7f7; --accent-rgb:74,143,231;
+  --on-accent:#ffffff; --accent-soft:rgba(74,143,231,.12); --accent-ink:#2563b8;
+  --ok:#2c7d52; --ok-bg:rgba(44,125,82,.12); --danger:#b8404f; --danger-bg:rgba(184,64,79,.10);
+  --warn-bg:rgba(214,150,40,.14); --warn-ink:#7a5410; --warn-line:rgba(214,150,40,.35);
+  --bar-bg:rgba(244,248,252,.88); --nav-bg:rgba(255,255,255,.96); --tip-bg:#ffffff;
+  --cv1:60%; --cv2:48%; --shadow-card:0 1px 2px rgba(40,70,110,.05),0 6px 18px rgba(40,70,110,.06);
   --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:9999px;
   --gutter:20px; --maxw:1200px;
   --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --shadow-pop:0 12px 32px rgba(0,0,0,.45);
+  --shadow-pop:0 12px 32px rgba(40,70,110,.18);
   --ease:cubic-bezier(.2,.7,.2,1);
+  color-scheme:light;
+}
+:root[data-theme=dark]{
+  --bg:#0f1319; --surface:#181d25; --surface-2:#222833; --surface-3:#2e3644;
+  --border:rgba(255,255,255,.07); --line:rgba(255,255,255,.08);
+  --text:#f1f5fa; --muted:#a2adbb; --faint:#8b97a6;
+  --accent:#7db3f5; --accent-btn:#7db3f5; --accent-h:#a3cbf9; --accent-2:#3d6db3; --accent-rgb:125,179,245;
+  --on-accent:#0d2342; --accent-soft:rgba(125,179,245,.14); --accent-ink:#a9cdf9;
+  --ok:#6fd6a0; --ok-bg:rgba(111,214,160,.14); --danger:#ff8da0; --danger-bg:rgba(255,141,160,.12);
+  --warn-bg:rgba(255,196,77,.12); --warn-ink:#ffd990; --warn-line:rgba(255,196,77,.3);
+  --bar-bg:rgba(15,19,25,.88); --nav-bg:rgba(24,29,37,.96); --tip-bg:#222833;
+  --cv1:38%; --cv2:24%; --shadow-card:none; --shadow-pop:0 12px 32px rgba(0,0,0,.45);
+  color-scheme:dark;
 }
 @media (max-width:640px){:root{--gutter:16px}}

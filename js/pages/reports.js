@@ -6,7 +6,8 @@
   const DOWS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'], MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
   const delta = (a, b, inv) => { const p = R.pct(a, b); if (p === null) return ''; const up = p > 0, cls = p === 0 ? 'flat' : (up !== !!inv) ? 'up' : 'down'; return `<span class="delta ${cls}" aria-label="${up ? 'sube' : 'baja'} ${Math.abs(p)}%">${p === 0 ? '＝' : up ? '▲' : '▼'} ${Math.abs(p)}%</span>`; };
   const fmt1 = (n) => (n >= 10 ? Math.round(n) : Math.round(n * 10) / 10).toString().replace('.', ',');
-  const hlCard = (label, it, href, kind) => it ? `<a class="hl" href="${esc(href)}">${E.cover('', it.name, 'hl-cover', kind, it.artist || '')}<div class="hl-over"><span class="hl-tag">${label}</span><b>${esc(it.name)}</b><span>${it.artist ? esc(it.artist) + ' · ' : ''}${num(it.n)} repr.</span></div></a>` : '';
+  const hintFor = (a, it) => { let best = null; a.counts.trk.forEach((x) => { if (R.key.artist(x.artist) === R.key.artist(it.name) && (!best || x.n > best.n)) best = x; }); return best ? best.name : ''; };
+  const hlCard = (label, it, href, kind, hint = '') => it ? `<a class="hl" href="${esc(href)}">${E.cover('', it.name, 'hl-cover', kind, it.artist || '', hint)}<div class="hl-over"><span class="hl-tag">${label}</span><b>${esc(it.name)}</b><span>${it.artist ? esc(it.artist) + ' · ' : ''}${num(it.n)} repr.</span></div></a>` : '';
 
   function clock(h, prev) {
     const max = Math.max(1, ...h, ...prev), cx = 150, cy = 150, r0 = 46, r1 = 140, P = (r, a) => `${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a)).toFixed(1)}`;
@@ -52,7 +53,7 @@
         <section class="section"><div class="section-head"><h2>Tendencias</h2><p>Comparado con el periodo anterior</p></div><div class="trends">
           ${stat(num(a.total) + ' ' + delta(a.total, b.total), 'reproducciones', 'antes: ' + num(b.total))}${stat(fmt1(a.avg) + ' ' + delta(a.avg, b.avg), 'media diaria', 'antes: ' + fmt1(b.avg))}${stat(a.active + ' ' + delta(a.active, b.active), 'días con música', 'antes: ' + b.active)}</div></section>
         <section class="section"><div class="section-head"><h2>Lo más escuchado</h2><p>${esc(cur)}</p></div><div class="hls">
-          ${hlCard('Artista top', a.tArt[0], '#/artista/' + enc((a.tArt[0] || {}).name), 'artist')}${hlCard('Álbum top', a.tAlb[0], a.tAlb[0] ? `#/album/${enc(a.tAlb[0].artist)}/${enc(a.tAlb[0].name)}` : '', 'album')}${hlCard('Canción top', a.tTrk[0], a.tTrk[0] ? `#/cancion/${enc(a.tTrk[0].artist)}/${enc(a.tTrk[0].name)}` : '', 'track')}</div>
+          ${hlCard('Artista top', a.tArt[0], '#/artista/' + enc((a.tArt[0] || {}).name), 'artist', a.tArt[0] ? hintFor(a, a.tArt[0]) : '')}${hlCard('Álbum top', a.tAlb[0], a.tAlb[0] ? `#/album/${enc(a.tAlb[0].artist)}/${enc(a.tAlb[0].name)}` : '', 'album')}${hlCard('Canción top', a.tTrk[0], a.tTrk[0] ? `#/cancion/${enc(a.tTrk[0].artist)}/${enc(a.tTrk[0].name)}` : '', 'track')}</div>
           <ul class="cnts">${cnt('artistas', a.nArt, b.nArt)}${cnt('álbumes', a.nAlb, b.nAlb)}${cnt('canciones', a.nTrk, b.nTrk)}</ul></section>
         <section class="section"><div class="section-head"><h2>Etiquetas populares</h2><p>Según los artistas que más escuchaste</p></div><div id="tg"><div class="sk" style="height:180px"></div></div></section>
         <section class="section"><div class="section-head"><h2>Reloj de escucha</h2><p>Escuchaste más a las ${String(peak).padStart(2, '0')}:00, con ${num(a.hours[peak])} reproducciones.</p></div>

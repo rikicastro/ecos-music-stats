@@ -16,7 +16,7 @@
 
   function rowHtml(cfg, it, i, max) {
     const v = cfg.view(it), pc = Number(it.playcount) || 0, w = max ? Math.max(2, (pc / max) * 100) : 0;
-    const img = E.pickImage(it.image, 'large');
+    const img = cfg.kind === 'artist' ? '' : E.pickImage(it.image, 'large');
     return `<li class="rank-row fade-in"><span class="rank">${i}</span>${E.cover(img, v.name, '', cfg.kind, v.cover)}
       <a class="info" href="${E.esc(v.href)}"><div class="t">${E.esc(v.name)}</div>${v.sub ? `<div class="a">${E.esc(v.sub)}</div>` : ''}
       <div class="bar" role="img" aria-label="${E.num(pc)} reproducciones"><i style="width:${w.toFixed(1)}%"></i></div></a>

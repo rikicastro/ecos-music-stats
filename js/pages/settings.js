@@ -13,7 +13,7 @@
           <input class="input" id="k" type="password" autocomplete="off" spellcheck="false" value="${E.esc(c.key || '')}" required>
           <small>Consíguela gratis en <a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener">last.fm/api/account/create</a>. Solo necesitas la «API key», no el secreto.</small></div>
         <div class="row-btns"><button class="btn btn-primary" id="save">Comprobar y guardar</button>
-          ${E.config.ready() ? '<button type="button" class="btn btn-ghost" id="wipe">Borrar mis datos locales</button>' : ''}</div>
+          ${E.config.ready() ? '<button type="button" class="btn btn-ghost" id="wipe">Borrar mis datos locales</button>' : ''}<button type="button" class="btn btn-ghost" id="wipeimg">Recargar imágenes</button></div>
       </form></div>`;
     const out = root.querySelector('#out');
     const show = (cls, t) => { out.innerHTML = `<div class="msg ${cls}" role="alert">${E.esc(t)}</div>`; };
@@ -28,6 +28,7 @@
         location.hash = '#/';
       } catch (err) { show('msg-error', err.message); btn.disabled = false; btn.textContent = 'Comprobar y guardar'; }
     });
+    root.querySelector('#wipeimg').onclick = () => { E.cache.clear(); show('msg-ok', 'Listo: las imágenes se volverán a buscar la próxima vez que las veas.'); };
     const wipe = root.querySelector('#wipe');
     if (wipe) wipe.onclick = () => { E.config.clear(); E.cache.clear(); E.renderNav(); location.hash = '#/ajustes'; E.route(); };
   };

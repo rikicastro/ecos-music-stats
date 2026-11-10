@@ -14,7 +14,7 @@
     s.src = `${url}&output=jsonp&callback=${cb}`; document.head.appendChild(s);
   });
   const slot = () => (chain = chain.then(() => new Promise((r) => setTimeout(r, Math.max(0, GAP - (Date.now() - last))))).then(() => { last = Date.now(); }));
-  const search = async (type, q) => { await slot(); const d = await jsonp(`https://api.deezer.com/search/${type}?q=${encodeURIComponent(q)}&limit=5`); return (d && d.data) || []; };
+  const search = async (type, q, limit = 5) => { await slot(); const d = await jsonp(`https://api.deezer.com/search/${type}?q=${encodeURIComponent(q)}&limit=${limit}`); return (d && d.data) || []; };
 
   const dz = async (path) => { await slot(); const d = await jsonp('https://api.deezer.com/' + path); return (d && d.data) || []; };
   /* Títulos que sabemos de ese artista: la pista del usuario + sus canciones/álbumes más populares en Last.fm */
@@ -26,16 +26,19 @@
   }
   async function lookup(kind, name, artist, hint) {
     if (kind === 'artist') {
-      const cands = (await search('artist', name)).filter((x) => norm(x.name) === norm(name));
+      try { // misma fuente que la página de detalle del artista
+        const i = await E.lastfm.call('artist.getInfo', { artist: name, autocorrect: 1 }, { ttl: 7 * 86400 }), u = E.pickImage(i.artist && i.artist.image, 'extralarge');
+        if (u) return u;
+      } catch {}
+      const cands = (await search('artist', name, 25)).filter((x) => norm(x.name) === norm(name));
       if (cands.length <= 1) return cands[0] ? cands[0].picture_medium || '' : '';
       // varios artistas con el mismo nombre: elegir el que tenga alguna canción o álbum conocido
-      const titles = await knownTitles(name, hint); if (!titles.size) return '';
-      const has = (list) => list.some((x) => { const t = norm(x.title); return titles.has(t) || [...titles].some((k) => k.length > 3 && (t.startsWith(k + ' ') || t.endsWith(' ' + k))); });
-      for (const c of cands.slice(0, 5)) {
-        const [tops, albs] = await Promise.all([dz(`artist/${c.id}/top?limit=50`), dz(`artist/${c.id}/albums?limit=100`)]);
-        if (has(tops) || has(albs)) return c.picture_medium || '';
-      }
-      return '';
+      const mk = (titles) => (list) => list.some((x) => { const t = norm(x.title); return titles.has(t) || [...titles].some((k) => k.length > 3 && (t.startsWith(k + ' ') || t.endsWith(' ' + k))); });
+      const catalog = await Promise.all(cands.slice(0, 8).map(async (c) => ({ c, list: [...await dz(`artist/${c.id}/top?limit=50`), ...await dz(`artist/${c.id}/albums?limit=100`)] })));
+      // 1.º la canción que tú escuchas; 2.º las más populares de Last.fm
+      if (hint) { const f = catalog.find(({ list }) => mk(new Set([norm(hint)]))(list)); if (f) return f.c.picture_medium || ''; }
+      const titles = await knownTitles(name, ''); if (!titles.size) return '';
+      const f = catalog.find(({ list }) => mk(titles)(list)); return f ? f.c.picture_medium || '' : '';
     }
     if (kind === 'album') return (await albumCover(artist, name)) || '';
     // canción: varios intentos con el título limpio; si no, la portada de su álbum según Last.fm
@@ -63,11 +66,14 @@
 
   const pending = new Map(); // dedupe de peticiones iguales en vuelo
   E.img = {
+    /* Con pista (una canción tuya de ese artista) el resultado es más fiable y sustituye al obtenido sin ella. */
     async resolve(kind, name, artist = '', hint = '') {
-      const key = `img3:${kind}:${norm(artist)}:${norm(name)}`, hit = E.cache.get(key, TTL);
+      const base = `img4:${kind}:${norm(artist)}:${norm(name)}`, key = hint ? `${base}:h:${norm(hint)}` : base;
+      const hit = E.cache.get(key, TTL);
       if (hit) return hit.u;
+      if (!hint) { const weak = E.cache.get(base, TTL); if (weak) return weak.u; }
       if (pending.has(key)) return pending.get(key);
-      const p = lookup(kind, name, artist, hint).then((u) => { E.cache.set(key, { u }); return u; }, () => '').finally(() => pending.delete(key));
+      const p = lookup(kind, name, artist, hint).then((u) => { E.cache.set(key, { u }); if (hint) E.cache.set(base, { u }); return u; }, () => '').finally(() => pending.delete(key));
       pending.set(key, p); return p;
     },
     /* Rellena las carátulas .cover[data-k] visibles de un contenedor */

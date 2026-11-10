@@ -1,15 +1,15 @@
 /* Tops: artistas, canciones y álbumes con selector de periodo, barras relativas y "cargar más" */
 (function (E) {
   E.pages = E.pages || {};
-  const PERIODS = [['1month', '4 semanas'], ['3month', '3 meses'], ['6month', '6 meses'], ['12month', '12 meses'], ['overall', 'Siempre']];
+  const PERIODS = [['7day', 'Última semana'], ['1month', '4 semanas'], ['3month', '3 meses'], ['6month', '6 meses'], ['12month', '12 meses'], ['overall', 'Siempre']];
   const enc = encodeURIComponent;
   const TYPES = {
     artistas: { method: 'user.getTopArtists', root: 'topartists', item: 'artist', title: 'Artistas', one: 'artistas distintos',
-      view: (a) => ({ name: a.name, sub: '', href: '#/artista/' + enc(a.name) }) },
+      kind: 'artist', view: (a) => ({ name: a.name, sub: '', cover: '', href: '#/artista/' + enc(a.name) }) },
     canciones: { method: 'user.getTopTracks', root: 'toptracks', item: 'track', title: 'Canciones', one: 'canciones distintas',
-      view: (t) => ({ name: t.name, sub: t.artist.name, href: `#/cancion/${enc(t.artist.name)}/${enc(t.name)}` }) },
+      kind: 'track', view: (t) => ({ name: t.name, sub: t.artist.name, cover: t.artist.name, href: `#/cancion/${enc(t.artist.name)}/${enc(t.name)}` }) },
     albumes: { method: 'user.getTopAlbums', root: 'topalbums', item: 'album', title: 'Álbumes', one: 'álbumes distintos',
-      view: (a) => ({ name: a.name, sub: a.artist.name, href: `#/album/${enc(a.artist.name)}/${enc(a.name)}` }) },
+      kind: 'album', view: (a) => ({ name: a.name, sub: a.artist.name, cover: a.artist.name, href: `#/album/${enc(a.artist.name)}/${enc(a.name)}` }) },
   };
   const getPeriod = () => { try { const p = localStorage.getItem('ecos:period'); return PERIODS.some((x) => x[0] === p) ? p : '3month'; } catch { return '3month'; } };
   const rowSk = '<li class="rank-row"><span class="rank sk">00</span><div class="cover sk" style="width:52px"></div><div class="info"><div class="sk" style="height:16px;width:50%"></div><div class="sk" style="height:6px;margin-top:10px"></div></div></li>';
@@ -17,7 +17,7 @@
   function rowHtml(cfg, it, i, max) {
     const v = cfg.view(it), pc = Number(it.playcount) || 0, w = max ? Math.max(2, (pc / max) * 100) : 0;
     const img = E.pickImage(it.image, 'large');
-    return `<li class="rank-row fade-in"><span class="rank">${i}</span>${E.cover(img, v.name)}
+    return `<li class="rank-row fade-in"><span class="rank">${i}</span>${E.cover(img, v.name, '', cfg.kind, v.cover)}
       <a class="info" href="${E.esc(v.href)}"><div class="t">${E.esc(v.name)}</div>${v.sub ? `<div class="a">${E.esc(v.sub)}</div>` : ''}
       <div class="bar" role="img" aria-label="${E.num(pc)} reproducciones"><i style="width:${w.toFixed(1)}%"></i></div></a>
       <div class="plays"><b>${E.num(pc)}</b><span>repr.</span></div></li>`;
@@ -28,7 +28,8 @@
     const id = E.nav, cfg = TYPES[type], user = E.config.get().user;
     let period = getPeriod(), page = 1, count = 0, max = 0;
     document.title = cfg.title + ' · Ecos';
-    root.innerHTML = `<div class="container fade-in"><div class="page-head"><div><h1>${cfg.title}</h1><p class="muted" id="sum">&nbsp;</p></div>
+    root.innerHTML = `<div class="container fade-in"><div class="tabs-row" role="tablist" aria-label="Tipo de top">${Object.entries(TYPES).map(([k, t]) => `<a class="tab" href="#/${k}" role="tab" aria-selected="${k === type}">${t.title}</a>`).join('')}</div>
+      <div class="page-head" style="padding-top:12px"><div><h1>${cfg.title}</h1><p class="muted" id="sum">&nbsp;</p></div>
       <div class="seg" role="group" aria-label="Periodo">${PERIODS.map(([k, l]) => `<button class="seg-btn" data-p="${k}" aria-pressed="${k === period}">${l}</button>`).join('')}</div></div>
       <ol class="ranking" id="list"></ol><div class="more" id="more"></div></div>`;
     const list = root.querySelector('#list'), more = root.querySelector('#more'), sum = root.querySelector('#sum');
@@ -44,6 +45,7 @@
       if (!items.length && count === 0) { list.innerHTML = `<li>${E.empty('Sin datos en este periodo', 'Last.fm no tiene reproducciones para este rango. Prueba con otro periodo.')}</li>`; sum.textContent = ''; return; }
       if (!max) max = Number(items[0].playcount) || 1;
       list.insertAdjacentHTML('beforeend', items.map((it) => rowHtml(cfg, it, ++count, max)).join(''));
+      E.img.hydrate(list);
       sum.textContent = `${E.num(att.total)} ${cfg.one}`;
       const more_ = page < Number(att.totalPages || 1) && count < 500;
       more.innerHTML = more_ ? '<button class="btn btn-ghost" id="m">Cargar más</button>' : '';

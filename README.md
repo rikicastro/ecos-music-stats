@@ -4,7 +4,8 @@ Web estática (HTML + CSS + JS, sin servidor ni paso de build) con tus estadíst
 
 ## Qué incluye
 - **Perfil:** scrobbles, fecha de registro, «suena ahora» y últimas canciones.
-- **Tops:** artistas, canciones y álbumes (4 semanas, 3/6/12 meses, siempre) con barras y página de detalle.
+- **Informes:** semana, mes o año comparados con el periodo anterior: reproducciones, tendencias, artista/álbum/canción top, etiquetas populares, reloj de escucha, canciones en repetición y descubrimientos.
+- **Charts:** tops de 7 días, 30 días, 365 días o siempre, en carruseles; «Ver más» abre la lista completa (artistas, canciones, álbumes) con barras y detalle de cada elemento.
 - **Actividad:** reproducciones por día, mapa de calor hora × día, rachas, día más escuchado, tendencia mensual y géneros.
 - **Spotify (opcional):** minutos escuchados, tops por tiempo, comparativa por año, saltos, shuffle, plataformas y horas pico.
 
@@ -35,7 +36,9 @@ Todo se procesa en tu navegador y se guarda en IndexedDB; nada se sube a ningún
 index.html           shell y carga de scripts
 css/                 tokens, base, componentes y páginas
 js/                  util, config, cache, lastfm, store, main
-js/pages/            perfil, tops, detalle, actividad, spotify, ajustes
+js/pages/            perfil, informes, charts, tops, detalle, actividad, spotify, ajustes
+js/reports/          descarga por periodo, comparativas y descubrimientos
+js/images.js         imágenes de artistas/canciones/álbumes (Deezer)
 js/charts/           análisis, gráficos (Chart.js 4.4.1 por CDN) y mapa de calor
 js/spotify/          parser, estadísticas y datos demo
 DESIGN.md            notas de diseño y viabilidad de funciones
@@ -43,4 +46,4 @@ DESIGN.md            notas de diseño y viabilidad de funciones
 Los archivos de `.claude/` son solo de desarrollo (servidor de previsualización y simulación de la API) y no forman parte de la web.
 
 ## Créditos y límites
-Datos de Last.fm; Ecos no está afiliado a Last.fm, Spotify ni stats.fm. Last.fm ya no ofrece imágenes de artistas, por lo que se muestran iniciales de color cuando falta carátula. Los minutos solo están disponibles con el historial de Spotify.
+Datos de Last.fm. Las imágenes de artistas, canciones y álbumes se buscan en la API pública de Deezer (solo se envía el nombre del artista/canción/álbum) y se guardan en caché en tu navegador. Ecos no está afiliado a Last.fm, Spotify ni stats.fm. Si no se encuentra una imagen se muestra una inicial de color. Los minutos solo están disponibles con el historial de Spotify.

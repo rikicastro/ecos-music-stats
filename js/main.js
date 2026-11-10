@@ -1,6 +1,6 @@
 (function (E) {
-  const ROUTES = [['#/', 'Perfil'], ['#/artistas', 'Artistas'], ['#/canciones', 'Canciones'], ['#/albumes', 'Álbumes'], ['#/actividad', 'Actividad'], ['#/spotify', 'Spotify']];
-  const SECTION = { artista: '#/artistas', cancion: '#/canciones', album: '#/albumes' };
+  const ROUTES = [['#/', 'Perfil'], ['#/informes', 'Informes'], ['#/charts', 'Charts'], ['#/actividad', 'Actividad'], ['#/spotify', 'Spotify']];
+  const SECTION = { artista: '#/charts', cancion: '#/charts', album: '#/charts', artistas: '#/charts', canciones: '#/charts', albumes: '#/charts' };
   const root = () => document.getElementById('app');
 
   E.renderNav = function () {
@@ -20,6 +20,8 @@
     if (h === '#/ajustes') return E.pages.ajustes(el);
     if (h === '#/') return E.pages.perfil(el);
     if (h === '#/actividad') return E.pages.actividad(el);
+    if (h === '#/informes') return E.pages.informes(el);
+    if (h === '#/charts') return E.pages.charts(el);
     if (h === '#/spotify') return E.pages.spotify(el);
     const seg = h.split('/').slice(1).map((x) => { try { return decodeURIComponent(x); } catch { return x; } });
     if (['artistas', 'canciones', 'albumes'].includes(seg[0]) && seg.length === 1) return E.pages.tops(el, seg[0]);

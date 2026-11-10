@@ -10,13 +10,13 @@
   const nowHtml = (t) => {
     const live = t['@attr'] && t['@attr'].nowplaying === 'true';
     const img = E.pickImage(t.image, 'large');
-    return `<div class="now fade-in">${E.cover(img, t.name)}<div><div class="pill">${live ? '<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span> Suena ahora' : 'Última reproducción'}</div>
+    return `<div class="now fade-in">${E.cover(img, t.name, '', 'track', t.artist['#text'])}<div><div class="pill">${live ? '<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span> Suena ahora' : 'Última reproducción'}</div>
       <div class="t">${E.esc(t.name)}</div><div class="a">${E.esc(t.artist['#text'])}${t.album && t.album['#text'] ? ' · ' + E.esc(t.album['#text']) : ''}</div></div></div>`;
   };
   const trackHtml = (t) => {
     const live = t['@attr'] && t['@attr'].nowplaying === 'true';
     const when = live ? 'ahora' : E.ago(Number(t.date.uts));
-    return `<li class="track">${E.cover(E.pickImage(t.image, 'medium'), t.name)}<div class="info"><div class="t">${E.esc(t.name)}</div><div class="a">${E.esc(t.artist['#text'])}</div></div><time>${E.esc(when)}</time></li>`;
+    return `<li class="track">${E.cover(E.pickImage(t.image, 'medium'), t.name, '', 'track', t.artist['#text'])}<div class="info"><div class="t">${E.esc(t.name)}</div><div class="a">${E.esc(t.artist['#text'])}</div></div><time>${E.esc(when)}</time></li>`;
   };
 
   function errorView(root, err) {
@@ -32,6 +32,7 @@
       if (id !== E.nav) return;
       root.querySelector('#now').innerHTML = list[0] ? nowHtml(list[0]) : '';
       root.querySelector('#recent').innerHTML = list.length ? list.map(trackHtml).join('') : '<li>' + E.empty('Sin reproducciones', 'Todavía no hay scrobbles en esta cuenta.') + '</li>';
+      E.img.hydrate(root);
     } catch {}
   }
 

@@ -38,6 +38,14 @@
             y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.06)' }, border: { display: false }, ticks: { precision: 0 } } } } });
       live.push(c); return c;
     },
+    bars2(canvas, labels, cur, prev, lc, lp) {
+      Chart.defaults.font.family = css('--font'); Chart.defaults.color = css('--muted');
+      const c = new Chart(canvas, { type: 'bar', data: { labels, datasets: [{ label: lc, data: cur, backgroundColor: css('--accent'), borderRadius: 4, maxBarThickness: 18 }, { label: lp, data: prev, backgroundColor: 'rgba(139,124,255,.28)', borderRadius: 4, maxBarThickness: 18 }] },
+        options: { responsive: true, maintainAspectRatio: false, animation: { duration: 500 }, interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: false }, tooltip: { backgroundColor: '#222227', borderColor: 'rgba(255,255,255,.1)', borderWidth: 1, padding: 10 } },
+          scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.06)' }, border: { display: false }, ticks: { precision: 0 } } } } });
+      live.push(c); return c;
+    },
     heatmap(el, heat) {
       const max = Math.max(1, ...heat.flat());
       let h = '<div class="heat" role="table" aria-label="Reproducciones por día de la semana y hora"><div class="heat-corner"></div>';

@@ -23,10 +23,11 @@ window.Ecos = window.Ecos || {};
   };
   E.hue = (s) => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
   /* Carátula con inicial de color como alternativa */
-  E.cover = (url, name, cls = '') => {
+  E.cover = (url, name, cls = '', kind = '', artist = '') => {
     const ini = E.esc((String(name).trim()[0] || '?').toUpperCase());
     const bg = `background:linear-gradient(135deg,hsl(${E.hue(name)} 45% 38%),hsl(${(E.hue(name) + 40) % 360} 45% 24%))`;
-    return `<div class="cover ${cls}" style="${bg}"><span class="ini" aria-hidden="true">${ini}</span>${url ? `<img src="${E.esc(url)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</div>`;
+    const lazy = !url && kind ? ` data-k="${kind}" data-n="${E.esc(name)}" data-a="${E.esc(artist)}"` : '';
+    return `<div class="cover ${cls}" style="${bg}"${lazy}><span class="ini" aria-hidden="true">${ini}</span>${url ? `<img src="${E.esc(url)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</div>`;
   };
   E.empty = (title, text, action = '') => `<div class="empty fade-in"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 15c1.2-1 2.4-1.5 4-1.5s2.8.5 4 1.5M9 9.5h.01M15 9.5h.01"/></svg><h2>${E.esc(title)}</h2><p>${E.esc(text)}</p>${action}</div>`;
 })(window.Ecos);

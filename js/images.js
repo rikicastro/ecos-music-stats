@@ -37,18 +37,34 @@
       }
       return '';
     }
-    if (kind === 'album') {
-      const l = await search('album', `${artist} ${name}`), hit = l.find((x) => norm(x.artist && x.artist.name) === norm(artist));
-      return hit ? hit.cover_medium || '' : '';
+    if (kind === 'album') return (await albumCover(artist, name)) || '';
+    // canción: varios intentos con el título limpio; si no, la portada de su álbum según Last.fm
+    for (const q of queries(artist, name)) {
+      const hit = (await search('track', q)).find((x) => sameArtist(x.artist && x.artist.name, artist));
+      if (hit && hit.album && hit.album.cover_medium) return hit.album.cover_medium;
     }
-    const l = await search('track', `${artist} ${name}`), hit = l.find((x) => norm(x.artist && x.artist.name) === norm(artist));
-    return hit && hit.album ? hit.album.cover_medium || '' : '';
+    try {
+      const d = await E.lastfm.call('track.getInfo', { artist, track: name, autocorrect: 1 }, { ttl: 7 * 86400 }), al = d.track && d.track.album;
+      if (al) return E.pickImage(al.image, 'extralarge') || (await albumCover(artist, al.title)) || '';
+    } catch {}
+    return '';
+  }
+  const sameArtist = (a, b) => { const x = norm(a), y = norm(b); return !!x && !!y && (x === y || (Math.min(x.length, y.length) >= 4 && (x.includes(y) || y.includes(x)))); };
+  /* Título sin apóstrofos, (feat…), [..] ni sufijos «- Remastered» */
+  const clean = (s) => String(s).replace(/\s*[\(\[][^\)\]]*[\)\]]/g, '').replace(/\s+[-–—]\s+.*$/, '').replace(/['’`]/g, '').trim();
+  const queries = (artist, name) => [...new Set([`${artist} ${name}`, `${artist} ${clean(name)}`, `${artist} ${String(name).replace(/['’`]/g, '')}`, clean(name) && `${clean(name)} ${artist}`])].filter(Boolean);
+  async function albumCover(artist, name) {
+    for (const q of [...new Set([`${artist} ${name}`, `${artist} ${clean(name)}`])]) {
+      const hit = (await search('album', q)).find((x) => sameArtist(x.artist && x.artist.name, artist));
+      if (hit && hit.cover_medium) return hit.cover_medium;
+    }
+    return '';
   }
 
   const pending = new Map(); // dedupe de peticiones iguales en vuelo
   E.img = {
     async resolve(kind, name, artist = '', hint = '') {
-      const key = `img2:${kind}:${norm(artist)}:${norm(name)}`, hit = E.cache.get(key, TTL);
+      const key = `img3:${kind}:${norm(artist)}:${norm(name)}`, hit = E.cache.get(key, TTL);
       if (hit) return hit.u;
       if (pending.has(key)) return pending.get(key);
       const p = lookup(kind, name, artist, hint).then((u) => { E.cache.set(key, { u }); return u; }, () => '').finally(() => pending.delete(key));

@@ -103,7 +103,7 @@ a.track{color:inherit;text-decoration:none}
   .topbar{backdrop-filter:none;background:var(--bg)}
   .topbar .container{flex-wrap:nowrap;height:60px;padding-top:0;padding-bottom:0}
   .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;order:0;flex-basis:auto;gap:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:var(--nav-bg);border-top:1px solid var(--border);justify-content:space-around;backdrop-filter:blur(12px)}
-  .nav a{flex:1;justify-content:center;text-align:center;padding:10px 2px;font-size:12px;border-radius:var(--r-md);position:relative}
+  .nav a{flex:1;flex-direction:column;justify-content:center;gap:3px;text-align:center;padding:8px 2px;font-size:11px;font-weight:600;border-radius:var(--r-md);position:relative}
   .nav a[aria-current=page]{background:none;color:var(--accent-ink)}
   .nav a[aria-current=page]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:2px;background:var(--accent)}
   main{padding-bottom:96px}
@@ -154,9 +154,10 @@ a.track{color:inherit;text-decoration:none}
 .pct{font-size:30px;font-weight:800}.small{font-size:13px;margin:4px 0 10px}
 .rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px;scrollbar-width:thin}
 .rail-card{flex:0 0 150px;scroll-snap-align:start;position:relative;color:inherit;text-decoration:none!important;min-width:0}
-.rail-card .cover{width:150px;font-size:44px}.rail-card.artist .cover{border-radius:50%}
+.rail-card .cover{width:150px;font-size:44px}.rail-card.k-artist .cover{border-radius:50%}
 .rail-card .t{font-weight:600;margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rail-card .a{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rail-card .rk{color:#fff;position:absolute;top:6px;left:6px;z-index:2;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);border-radius:var(--r-pill);padding:1px 9px;font-weight:700;font-size:13px}
 .rail-card:hover .cover{transform:scale(1.03)}
 .more-link{font-weight:600;font-size:14px}
 @media (max-width:640px){.big{font-size:32px}.pager b{min-width:140px}.rail-card{flex-basis:132px}.rail-card .cover{width:132px}}
+@media (max-width:760px){.nav a svg{width:23px;height:23px}.user-chip .un{max-width:90px}}

@@ -1,39 +1,14 @@
 (function (E) {
   E.pages = E.pages || {};
-  let timer = null;
 
   const skeleton = `<div class="hero"><div class="container"><div class="avatar sk" style="width:120px;height:120px"></div>
     <div style="flex:1"><div class="sk" style="height:36px;width:220px;max-width:100%"></div><div class="sk" style="height:16px;width:160px;margin-top:12px"></div></div></div></div>
-    <div class="container"><div class="statbar stats">${'<div class="stat"><b class="sk">00000</b><span class="sk">etiqueta</span></div>'.repeat(4)}</div>
-    <div class="section"><div class="sk" style="height:26px;width:200px;margin-bottom:16px"></div>${'<div class="sk" style="height:60px;margin-bottom:8px"></div>'.repeat(5)}</div></div>`;
-
-  const nowHtml = (t) => {
-    const live = t['@attr'] && t['@attr'].nowplaying === 'true';
-    const img = E.pickImage(t.image, 'large');
-    return `<div class="now fade-in">${E.cover(img, t.name, '', 'track', t.artist['#text'])}<div><div class="pill">${live ? '<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span> Suena ahora' : 'Última reproducción'}</div>
-      <div class="t">${E.esc(t.name)}</div><div class="a">${E.esc(t.artist['#text'])}${t.album && t.album['#text'] ? ' · ' + E.esc(t.album['#text']) : ''}</div></div></div>`;
-  };
-  const trackHtml = (t) => {
-    const live = t['@attr'] && t['@attr'].nowplaying === 'true';
-    const when = live ? 'ahora' : E.ago(Number(t.date.uts));
-    return `<li class="track">${E.cover(E.pickImage(t.image, 'medium'), t.name, '', 'track', t.artist['#text'])}<div class="info"><div class="t">${E.esc(t.name)}</div><div class="a">${E.esc(t.artist['#text'])}</div></div><time>${E.esc(when)}</time></li>`;
-  };
+    <div class="container"><div class="statbar stats">${'<div class="stat"><b class="sk">00000</b><span class="sk">etiqueta</span></div>'.repeat(4)}</div></div>`;
 
   function errorView(root, err) {
     const bad = [6, 10, 26].includes(err.code);
     root.innerHTML = `<div class="container">${E.empty(bad ? 'Revisa tu configuración' : 'No se pudo cargar el perfil', err.message,
-      `<a class="btn btn-primary" href="${bad ? '#/ajustes' : '#/'}">${bad ? 'Ir a ajustes' : 'Reintentar'}</a>`)}</div>`;
-  }
-
-  async function refreshRecent(root, id) {
-    try {
-      const r = await E.lastfm.recent(15);
-      const list = [].concat(r.recenttracks.track || []);
-      if (id !== E.nav) return;
-      root.querySelector('#now').innerHTML = list[0] ? nowHtml(list[0]) : '';
-      root.querySelector('#recent').innerHTML = list.length ? list.map(trackHtml).join('') : '<li>' + E.empty('Sin reproducciones', 'Todavía no hay scrobbles en esta cuenta.') + '</li>';
-      E.img.hydrate(root);
-    } catch {}
+      `<a class="btn btn-primary" href="${bad ? '#/ajustes' : '#/perfil'}">${bad ? 'Ir a ajustes' : 'Reintentar'}</a>`)}</div>`;
   }
 
   E.pages.perfil = async function (root) {
@@ -51,13 +26,6 @@
       <div><h1>${E.esc(name)}${info.realname ? `<small>@${E.esc(info.name)}</small>` : ''}</h1>
       <p class="meta">Escuchando desde el ${E.esc(E.date(info.registered.unixtime))}${info.country && info.country !== 'None' ? ' · ' + E.esc(info.country) : ''}</p>
       <p class="meta"><a href="${E.esc(info.url)}" target="_blank" rel="noopener">Ver perfil en Last.fm ↗</a></p></div></div></header>
-      <div class="container"><div class="statbar stats">${stats.map(([v, l]) => `<div class="stat"><b>${E.num(v)}</b><span>${l}</span></div>`).join('')}</div>
-      <div id="now"></div>
-      <section class="section"><div class="section-head"><h2>Últimas canciones</h2><p>Se actualiza cada 30 segundos</p></div><ul class="tracks" id="recent">${'<li class="track"><div class="cover sk" style="width:48px"></div><div class="info"><div class="sk" style="height:16px;width:60%"></div></div></li>'.repeat(5)}</ul></section></div></div>`;
-    await refreshRecent(root, id);
-    if (id !== E.nav) return;
-    clearInterval(timer);
-    timer = setInterval(() => id === E.nav ? (!document.hidden && refreshRecent(root, id)) : clearInterval(timer), 30000);
+      <div class="container"><div class="statbar stats">${stats.map(([v, l]) => `<div class="stat"><b>${E.num(v)}</b><span>${l}</span></div>`).join('')}</div></div></div>`;
   };
-  E.stopTimers = () => clearInterval(timer);
 })(window.Ecos);

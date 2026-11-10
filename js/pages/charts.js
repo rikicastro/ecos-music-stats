@@ -33,7 +33,7 @@
         const r = res[i]; if (r instanceof Error) return `<section class="section"><div class="section-head"><h2>${s.t}</h2></div>${E.empty('No se pudo cargar', r.message)}</section>`;
         const root_ = r[s.root], items = [].concat(root_[s.k] || []), tot = (root_['@attr'] || {}).total;
         return `<section class="section"><div class="section-head head-row"><div><h2>${E.num(tot)} ${s.t}</h2></div><a class="more-link" href="${s.route}" data-per="${per}">Ver más</a></div>
-          ${items.length ? `<div class="rail">${items.map((x, n) => `<a class="rail-card ${s.k}" href="${esc(s.href(x))}"><div class="rk">${n + 1}</div>${E.cover(E.pickImage(x.image, 'large'), x.name, '', s.k, s.by(x))}<div class="t">${esc(x.name)}</div><div class="a">${s.sub(x) ? esc(s.sub(x)) + ' · ' : ''}${E.num(x.playcount)} repr.</div></a>`).join('')}</div>` : E.empty('Sin datos', 'No hay reproducciones en este periodo.')}</section>`;
+          ${items.length ? `<div class="rail">${items.map((x, n) => `<a class="rail-card k-${s.k}" href="${esc(s.href(x))}"><div class="rk">${n + 1}</div>${E.cover(E.pickImage(x.image, 'large'), x.name, '', s.k, s.by(x))}<div class="t">${esc(x.name)}</div><div class="a">${s.sub(x) ? esc(s.sub(x)) + ' · ' : ''}${E.num(x.playcount)} repr.</div></a>`).join('')}</div>` : E.empty('Sin datos', 'No hay reproducciones en este periodo.')}</section>`;
       }).join('');
       E.img.hydrate(body);
       body.querySelectorAll('.more-link').forEach((a) => a.addEventListener('click', () => { try { localStorage.setItem('ecos:period', a.dataset.per); } catch {} }));

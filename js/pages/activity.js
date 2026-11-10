@@ -38,6 +38,28 @@
     } catch (e) { if (id === E.nav) el.innerHTML = E.empty('No se pudieron cargar los géneros', e.message); }
   }
 
+  /* Ahora suena + últimas canciones (antes estaban en Perfil) */
+  let rtimer = null;
+  E.stopTimers = () => clearInterval(rtimer);
+  const nowHtml = (t) => {
+    const live = t['@attr'] && t['@attr'].nowplaying === 'true';
+    return `<div class="now fade-in">${E.cover(E.pickImage(t.image, 'large'), t.name, '', 'track', t.artist['#text'])}<div><div class="pill">${live ? '<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span> Suena ahora' : 'Última reproducción'}</div>
+      <div class="t">${E.esc(t.name)}</div><div class="a">${E.esc(t.artist['#text'])}${t.album && t.album['#text'] ? ' · ' + E.esc(t.album['#text']) : ''}</div></div></div>`;
+  };
+  const trackHtml = (t) => {
+    const live = t['@attr'] && t['@attr'].nowplaying === 'true';
+    return `<li class="track">${E.cover(E.pickImage(t.image, 'medium'), t.name, '', 'track', t.artist['#text'])}<div class="info"><div class="t">${E.esc(t.name)}</div><div class="a">${E.esc(t.artist['#text'])}</div></div><time>${E.esc(live ? 'ahora' : E.ago(Number(t.date.uts)))}</time></li>`;
+  };
+  async function refreshRecent(root, id) {
+    try {
+      const r = await E.lastfm.recent(15), list = [].concat(r.recenttracks.track || []);
+      if (id !== E.nav) return;
+      root.querySelector('#now').innerHTML = list[0] ? nowHtml(list[0]) : '';
+      root.querySelector('#recent').innerHTML = list.length ? list.map(trackHtml).join('') : '<li>' + E.empty('Sin reproducciones', 'Todavía no hay scrobbles en esta cuenta.') + '</li>';
+      E.img.hydrate(root);
+    } catch (e) { if (id === E.nav) root.querySelector('#recent').innerHTML = '<li>' + E.empty('No se pudieron cargar las canciones', e.message) + '</li>'; }
+  }
+
   E.pages.actividad = async function (root) {
     if (!E.config.ready()) { location.hash = '#/ajustes'; return; }
     const id = E.nav, user = E.config.get().user; document.title = 'Actividad · Ecos';
@@ -47,11 +69,16 @@
     const age = store ? Date.now() / 1000 - store.from : 0;
     let range = !store ? '90' : age > 400 * 86400 ? '0' : age > 120 * 86400 ? '365' : '90', span = 30, running = null;
 
-    root.innerHTML = `<div class="container fade-in"><div class="page-head"><div><h1>Actividad</h1><p class="muted" id="cov">Aún no hay historial cargado.</p></div>
+    root.innerHTML = `<div class="container fade-in"><div class="page-head"><div><h1>Actividad</h1><p class="muted">Lo que escuchas ahora y tu historial</p></div></div>
+      <div id="now"></div>
+      <section class="section"><div class="section-head"><h2>Últimas canciones</h2><p>Se actualiza cada 30 segundos</p></div><ul class="tracks" id="recent">${'<li class="track"><div class="cover sk" style="width:48px"></div><div class="info"><div class="sk" style="height:16px;width:60%"></div></div></li>'.repeat(5)}</ul></section>
+      <section class="section"><div class="page-head" style="padding:0 0 16px"><div><h2>Historial</h2><p class="muted" id="cov">Aún no hay historial cargado.</p></div>
       <div class="row-btns"><div class="seg" id="rng" role="group" aria-label="Historial a cargar">${[['90', '90 días'], ['365', '1 año'], ['0', 'Todo']].map(([v, l]) => `<button class="seg-btn" data-r="${v}" aria-pressed="${v === range}">${l}</button>`).join('')}</div>
       <button class="btn btn-primary" id="go">${store ? 'Actualizar' : 'Cargar historial'}</button></div></div>
-      <div id="prog" aria-live="polite"></div><div id="out"></div></div>`;
+      <div id="prog" aria-live="polite"></div><div id="out"></div></section></div>`;
     const $ = (s) => root.querySelector(s), prog = $('#prog'), out = $('#out'), go = $('#go');
+    refreshRecent(root, id); clearInterval(rtimer);
+    rtimer = setInterval(() => (id === E.nav ? (!document.hidden && refreshRecent(root, id)) : clearInterval(rtimer)), 30000);
 
     function render() {
       E.charts.destroyAll();
